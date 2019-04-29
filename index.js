@@ -3,6 +3,8 @@ const db = require('./data/db.js'); //tells server where to find the database/da
 
 const server = express(); // 2. create an express server call it server
 
+server.use(express.json()); //teaches express how to parse json
+
 server.listen(4000, () => {
   console.log('Server running on localhost: 4000')
 });
@@ -28,12 +30,41 @@ server.get('/hubs', (req, res) => {
     .catch(err => {
       res.status(err.code).json({message: 'error retrieving hub'})
     })
-})
 
-//another way to get an error message
+    //another way to get an error message
 //.catch(( {code, message }) => {
 //   res.status(code.json({
 //     success: false,
 //     message
 //   }))
 // })
+})
+
+server.post('/hubs', (req, res) => {
+  const hubInfo = req.body;
+
+  db.hubs
+  .add(hubInfo)
+  .then(hub => {
+    res.status(201).json({success: true, hub})
+  })
+  .catch(err => {
+    res.status(err.code).json({success: false, message: err.message})
+  })
+})
+
+server.delete('/hubs/:id', (req, res) => {
+  const id = req.params.id;
+
+  db.hubs 
+  .remove(id)
+  .then(deleted => {
+    res.status(204).end();
+  })
+  .catch(err=> {
+    res.status(err.code).json({ success: true, message: err.message })
+  })
+})
+
+
+
